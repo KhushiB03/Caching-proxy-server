@@ -2,6 +2,8 @@ import express from "express"
 import "dotenv/config";
 import yargs from "yargs"
 import {hideBin} from "yargs/helpers"
+import axios from "axios";
+
 
 const app = express();
 let count =0;
@@ -22,8 +24,7 @@ const argv = yargs(hideBin(process.argv))
 const PORT = argv.port;
 const ORIGIN = argv.origin;
 
-
-app.get("/" , (req,res)=>{
+app.get("/home/api" , (req,res)=>{
  
   console.log("/ page opened");
 
@@ -35,6 +36,32 @@ app.get("/" , (req,res)=>{
   `);
 });
 
+app.use(async (req,res)=>{
+    try {
+       const targetURL = new URL(req.originalUrl , ORIGIN).toString() ;
+       console.log(`forwarding the request to ${targetURL}`);
+       //for get request
+       const response = await axios({
+        method: req.method,
+        url: targetURL,
+        headers:req.headers
+       })
+       ;
+       res.send(response.data);
+       console.log(response.data);
+
+
+    } catch (error) {
+        res.status(500).send("Error forwarding request");
+        
+    }
+})
+
+
+
+app.listen(3080,()=>{
+    console.log("chlaaaaaaaaaaaaaaaaaaaaa")
+})
 
 app.listen(PORT , ()=>{
     console.log("PORT HAS STARTED RUNNING....");
