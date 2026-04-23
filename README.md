@@ -1,36 +1,47 @@
 # 🚀 Caching Proxy Server
 
-A CLI-based caching proxy server built using Node.js and Express.
-
-This tool forwards incoming HTTP requests to an origin server and caches the responses to improve performance and reduce redundant network calls.
+A simple Node.js proxy server built with Express that forwards requests to an origin server and caches responses with TTL (Time-To-Live).
 
 ---
 
 ## 📌 Features
 
-* Start server using CLI arguments
-* Forward requests to an origin server (coming next)
-* Cache responses for repeated requests (coming next)
-* Return cached responses with headers (`X-Cache: HIT/MISS`)
-* Clear cache via CLI command (coming next)
+* ✅ Forward requests to any origin server
+* ⚡ In-memory caching for faster responses
+* ⏱️ TTL-based cache expiration
+* 💾 Persistent cache storage (`cache.json`)
+* 🧹 Automatic cleanup of expired cache
+* 🎯 CLI-based configuration (port, origin, ttl)
+* 🔒 Caches only GET requests (best practice)
 
 ---
 
-## 🧠 How It Works
+## 🛠️ Tech Stack
 
-1. Client sends request → Proxy server
-2. Proxy checks if response exists in cache
-3. If YES → returns cached response (**HIT**)
-4. If NO → forwards request to origin → stores response → returns (**MISS**)
+* Node.js
+* Express
+* Axios
+* Yargs
+* File System (`fs`)
 
 ---
 
-## 📦 Installation
+## 📂 Project Structure
 
-Clone the repository and install dependencies:
+```
+caching-proxy/
+│── src/
+│   └── index.js
+│── cache.json
+│── package.json
+```
+
+---
+
+## ⚙️ Installation
 
 ```bash
-git clone <your-repo-link>
+git clone <your-repo-url>
 cd caching-proxy
 npm install
 ```
@@ -39,114 +50,111 @@ npm install
 
 ## ▶️ Usage
 
-Run the server using CLI arguments:
+Run the server with:
 
 ```bash
-node src/index.js --port 3000 --origin http://dummyjson.com
+npm start -- --port 3000 --origin http://dummyjson.com --ttl 60
+```
+
+### 🔧 Arguments
+
+| Argument   | Description                   |
+| ---------- | ----------------------------- |
+| `--port`   | Port to run the proxy server  |
+| `--origin` | Base URL of the origin server |
+| `--ttl`    | Cache time (in seconds)       |
+
+---
+
+## 🔁 How It Works
+
+1. Client sends request to proxy
+2. Proxy builds full target URL using origin
+3. Cache is checked:
+
+   * ✅ If valid → return cached response
+   * ❌ If expired/missing → fetch from origin
+4. Response is stored in cache with expiry
+5. Cache is saved to `cache.json`
+6. Response is sent back to client
+
+---
+
+## 🧠 Example Flow
+
+### First Request
+
+```
+GET /products
+```
+
+* ❌ Cache MISS
+* Fetch from origin server
+* Store in cache
+
+---
+
+### Second Request (within TTL)
+
+```
+GET /products
+```
+
+* ✅ Cache HIT
+* Instant response
+
+---
+
+### After TTL expires
+
+```
+GET /products
+```
+
+* ⏰ Cache expired
+* Fetch again from origin
+
+---
+
+## 🧹 Cache Cleanup
+
+* Runs automatically every **50 seconds**
+* Removes expired cache entries
+* Updates `cache.json`
+
+---
+
+## 📡 Example Endpoint
+
+Test route:
+
+```
+GET /home/api
 ```
 
 ---
 
-## 🧪 Example
+## ⚠️ Limitations
 
-Start server:
-
-```bash
-node src/index.js --port 3000 --origin http://dummyjson.com
-```
-
-Open in browser:
-
-```
-http://localhost:3000
-```
-
-Response:
-
-```
-PORT = 3000
-Origin = http://dummyjson.com
-```
+* Only caches GET requests
+* No cache size limit (can grow large)
+* Uses file-based storage (not scalable)
 
 ---
 
-## 📁 Project Structure
+## 🚀 Future Improvements
 
-```
-caching-proxy/
-│── src/
-│   └── index.js
-│── package.json
-│── README.md
-```
+* 🔄 Cache invalidation API (`/clear-cache`)
+* 📦 LRU Cache (size-based eviction)
+* ⚡ Redis integration (production-ready)
+* 🧾 Cache headers support (ETag, Cache-Control)
 
 ---
 
-## ⚙️ Tech Stack
-
-* Node.js
-* Express.js
-* yargs (CLI parsing)
-
----
-
-## 🚧 Current Status
-
-### ✅ Completed
-
-* Basic Express server
-* CLI argument parsing using yargs
-
-### ⏳ In Progress
-
-* Request forwarding (proxy logic)
-* Response caching
-
-### 🔜 Planned Features
-
-* Cache with TTL (expiry)
-* LRU cache optimization
-* Cache clearing via CLI
-* Logging & debugging support
-
----
-
-## 🧪 Testing (Manual)
-
-1. Start the server
-2. Open browser or use Postman
-3. Send request to:
-
-   ```
-   http://localhost:3000/<endpoint>
-   ```
-
----
-
-## 📚 Learning Goals
-
-This project helps understand:
-
-* How proxy servers work
-* HTTP request/response lifecycle
-* Caching strategies
-* CLI tool development
-* Backend system design fundamentals
-
----
-
-## 🤝 Contribution
-
-This is a learning project, but contributions and suggestions are welcome.
-
+## 👨‍💻 Author
+Khushi Bhardwaj
 ---
 
 ## 📄 License
 
-ISC License
-
----
-
-## ✨ Author
-
-Khushi
+This project is open-source.
